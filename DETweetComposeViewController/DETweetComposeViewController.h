@@ -18,14 +18,13 @@
 
 #import "DETweetPoster.h"
 #import "DETweetAccountSelectorViewController.h"
-#import "TwitterDialog.h"
 
 @class DETweetSheetCardView;
 @class DETweetTextView;
 
 @interface DETweetComposeViewController : UIViewController <UITextViewDelegate, UIAlertViewDelegate,
 UIPickerViewDataSource, UIPickerViewDelegate, UIPopoverControllerDelegate, DETweetAccountSelectorViewControllerDelegate,
-DETweetPosterDelegate, TwitterDialogDelegate, TwitterLoginDialogDelegate>
+DETweetPosterDelegate>
 
 @property (retain, nonatomic) IBOutlet DETweetSheetCardView *cardView;
 @property (retain, nonatomic) IBOutlet UILabel *titleLabel;
@@ -97,10 +96,6 @@ typedef void (^DETweetComposeViewControllerCompletionHandler)(DETweetComposeView
     // Specify a block to be called when the user is finished. This block is not guaranteed
     // to be called on any particular thread.
 @property (nonatomic, copy) DETweetComposeViewControllerCompletionHandler completionHandler;
-
-    // On iOS5+, set to YES to prevent from using built in Twitter credentials.
-    // Set to NO by default.
-@property (assign, nonatomic) BOOL alwaysUseDETwitterCredentials;
 
 
 @end

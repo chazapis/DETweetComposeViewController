@@ -21,13 +21,9 @@
 #import "DETweetSheetCardView.h"
 #import "DETweetTextView.h"
 #import "DETweetGradientView.h"
-#import "OAuth.h"
-#import "OAuth+DEExtensions.h"
-#import "OAuthConsumerCredentials.h"
 #import "UIDevice+DETweetComposeViewController.h"
 #import <QuartzCore/QuartzCore.h>
 #import <Accounts/Accounts.h>
-#import <Twitter/TWRequest.h>
 
 
 static BOOL waitingForAccess = NO;
@@ -47,7 +43,6 @@ static BOOL waitingForAccess = NO;
 @property (nonatomic, retain) UIPickerView *accountPickerView;
 @property (nonatomic, retain) UIPopoverController *accountPickerPopoverController;
 @property (nonatomic, retain) id twitterAccount;  // iOS 5 use only.
-@property (nonatomic, retain) OAuth *oAuth;
 @property (nonatomic, retain) DETweetPoster *tweetPoster;
 
 - (void)tweetComposeViewControllerInit;
@@ -87,7 +82,6 @@ static BOOL waitingForAccess = NO;
 
     // Public
 @synthesize completionHandler = _completionHandler;
-@synthesize alwaysUseDETwitterCredentials = _alwaysUseDETwitterCredentials;
 
     // Private
 @synthesize text = _text;
@@ -102,7 +96,6 @@ static BOOL waitingForAccess = NO;
 @synthesize accountPickerView = _accountPickerView;
 @synthesize accountPickerPopoverController = _accountPickerPopoverController;
 @synthesize twitterAccount = _twitterAccount;
-@synthesize oAuth = _oAuth;
 @synthesize tweetPoster = _tweetPoster;
 
 enum {
@@ -155,10 +148,6 @@ static NSString * const DETweetLastAccountIdentifier = @"DETweetLastAccountIdent
         if ([twitterAccounts count] > 0) {
             canSendTweet = YES;
         }
-    }
-    
-    if ([OAuth isTwitterAuthorized]) {
-        canSendTweet = YES;
     }
     
     return canSendTweet;
@@ -265,7 +254,6 @@ static NSString * const DETweetLastAccountIdentifier = @"DETweetLastAccountIdent
     [_accountPickerView release], _accountPickerView = nil;
     [_accountPickerPopoverController release], _accountPickerPopoverController = nil;
     [_twitterAccount release], _twitterAccount = nil;
-    [_oAuth release], _oAuth = nil;
     [_tweetPoster release], _tweetPoster = nil;
     
     [super dealloc];
@@ -483,7 +471,6 @@ static NSString * const DETweetLastAccountIdentifier = @"DETweetLastAccountIdent
     self.gradientView = nil;
     self.accountPickerView = nil;
     self.accountPickerPopoverController = nil;
-    self.oAuth = nil;
     
     [super viewDidUnload];
 }
@@ -787,7 +774,7 @@ static NSString * const DETweetLastAccountIdentifier = @"DETweetLastAccountIdent
     // If one is already selected, makes sure it's still valid.
     // If not, another is picked.
 {
-    if ([UIDevice de_isIOS5] == NO || self.alwaysUseDETwitterCredentials == YES) {
+    if ([UIDevice de_isIOS5] == NO) {
         return;
     }
     
@@ -871,7 +858,7 @@ static NSString * const DETweetLastAccountIdentifier = @"DETweetLastAccountIdent
 
 - (void)checkTwitterCredentials
 {
-    if (self.alwaysUseDETwitterCredentials == NO && [UIDevice de_isIOS5]) {
+    if ([UIDevice de_isIOS5]) {
             // Try using iOS5 Twitter credentials
         if ([[self class] canAccessTwitterAccounts]) {
             ACAccountStore *accountStore = [[[ACAccountStore alloc] init] autorelease];
@@ -883,18 +870,6 @@ static NSString * const DETweetLastAccountIdentifier = @"DETweetLastAccountIdent
         }
         else {
             [self performSelector:@selector(dismissModalViewControllerAnimated:) withObject:self afterDelay:1.0f];
-        }
-    }
-    else {
-            // Present Twitter OAuth login if necessary
-        if (![OAuth isTwitterAuthorized]) {
-            self.oAuth = [[[OAuth alloc] initWithConsumerKey:kDEConsumerKey andConsumerSecret:kDEConsumerSecret] autorelease];
-            TwitterDialog *td = [[[TwitterDialog alloc] init] autorelease];
-            td.twitterOAuth = self.oAuth;
-            td.delegate = self;
-            td.logindelegate = self;
-            [self.textView resignFirstResponder];
-            [td show];
         }
     }
 }
@@ -981,7 +956,6 @@ static NSString * const DETweetLastAccountIdentifier = @"DETweetLastAccountIdent
 
 - (void)tweetFailedAuthentication:(DETweetPoster *)tweetPoster
 {
-    [OAuth clearCrendentials];
     [self dismissModalViewControllerAnimated:YES];
     
     [[[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Cannot Send Tweet", @"")
@@ -1065,22 +1039,6 @@ static NSString * const DETweetLastAccountIdentifier = @"DETweetLastAccountIdent
             [self send];
         }
     }
-}
-
-
-#pragma mark - TwitterLoginDialogDelegate
-
-- (void)twitterDidLogin
-{
-    [self.oAuth saveOAuthContext];
-    [self.textView becomeFirstResponder];
-}
-
-
-- (void)twitterDidNotLogin:(BOOL)cancelled
-{
-        // Oddly this is not an optional method in the protocol.
-    [self dismissModalViewControllerAnimated:YES];
 }
 
 @end
