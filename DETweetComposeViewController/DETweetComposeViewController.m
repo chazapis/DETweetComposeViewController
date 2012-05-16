@@ -82,6 +82,7 @@ static BOOL waitingForAccess = NO;
 
     // Public
 @synthesize completionHandler = _completionHandler;
+@synthesize hideFromField = _hideFromField;
 
     // Private
 @synthesize text = _text;
@@ -348,14 +349,18 @@ static NSString * const DETweetLastAccountIdentifier = @"DETweetLastAccountIdent
     
     [self updateFramesForOrientation:self.interfaceOrientation];
     
-    [self checkTwitterCredentials];
-    
-    [self selectTwitterAccount];  // Set or verify our default account.
-    
+        // If no account is forced.
+    if (self.twitterAccount == nil) {
+        [self checkTwitterCredentials];
+        
+        [self selectTwitterAccount];  // Set or verify our default account.
+    }
+        
         // Like TWTweetComposeViewController, we'll let the user change the account only if
         // we're in portrait orientation on iPhone. iPad can do it in any orientation.
     if ([[DETweetPoster accounts] count] > 1
-        && ([UIDevice de_isPad] || UIInterfaceOrientationIsPortrait(self.interfaceOrientation)) ) {
+        && ([UIDevice de_isPad] || UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
+        && !self.hideFromField) {
         self.textView.accountName = ((ACAccount *)self.twitterAccount).accountDescription;
     }
     else {
@@ -477,6 +482,11 @@ static NSString * const DETweetLastAccountIdentifier = @"DETweetLastAccountIdent
 
 
 #pragma mark - Public
+
+- (void)setInitialTwitterAccount:(id)account
+{
+    self.twitterAccount = account;
+}
 
 - (BOOL)setInitialText:(NSString *)initialText
 {

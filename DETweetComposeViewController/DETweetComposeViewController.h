@@ -65,6 +65,9 @@ typedef void (^DETweetComposeViewControllerCompletionHandler)(DETweetComposeView
     // been set.
 + (BOOL)canSendTweet;
 
+    // Sets the initial account to be used.
+- (void)setInitialTwitterAccount:(id)account;
+
     // Sets the initial text to be tweeted. Returns NO if the specified text will
     // not fit within the character space currently available, or if the sheet
     // has already been presented to the user.
@@ -96,6 +99,10 @@ typedef void (^DETweetComposeViewControllerCompletionHandler)(DETweetComposeView
     // Specify a block to be called when the user is finished. This block is not guaranteed
     // to be called on any particular thread.
 @property (nonatomic, copy) DETweetComposeViewControllerCompletionHandler completionHandler;
+
+    // Set to YES to hide the "From:" field, effectively also preventing from allowing account selection.
+    // Set to NO by default.
+@property (assign, nonatomic) BOOL hideFromField;
 
 
 @end
