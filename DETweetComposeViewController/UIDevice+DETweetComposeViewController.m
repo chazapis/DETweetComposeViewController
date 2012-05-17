@@ -23,7 +23,7 @@
 
 + (BOOL)de_isIOS5
 {
-    return (NSClassFromString(@"NSJSONSerialization") != nil);
+    return [[[UIDevice currentDevice] systemVersion] floatValue] >= 5.0;
 }
 
 
