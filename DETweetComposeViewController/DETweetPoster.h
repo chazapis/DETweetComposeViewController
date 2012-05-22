@@ -22,6 +22,7 @@
 @interface DETweetPoster : NSObject <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
 
 @property (nonatomic, assign) id<DETweetPosterDelegate> delegate;
+@property (nonatomic, retain) NSMutableData *responseData;
 
     // Class Methods
 + (NSArray *)accounts;

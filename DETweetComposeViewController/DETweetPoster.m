@@ -41,6 +41,7 @@ NSString * const twitterStatusKey = @"status";
 
 @synthesize delegate = _delegate;
 @synthesize postConnection = _postConnection;
+@synthesize responseData = _responseData;
 
 
 #pragma mark - Class Methods
@@ -64,6 +65,7 @@ NSString * const twitterStatusKey = @"status";
     _delegate = nil;
     [_postConnection cancel];
     [_postConnection release], _postConnection = nil;
+    [_responseData release], _responseData = nil;
   
     [super dealloc];
 }
@@ -120,6 +122,7 @@ NSString * const twitterStatusKey = @"status";
     if ([NSURLConnection canHandleRequest:postRequest]) {
         self.postConnection = [NSURLConnection connectionWithRequest:postRequest delegate:self];
         [self.postConnection start];
+        self.responseData = [NSMutableData data];
     }
     else {
         [self sendFailedToDelegate];
@@ -160,6 +163,8 @@ NSString * const twitterStatusKey = @"status";
     [self sendFailedToDelegate];
     [_postConnection release];
     _postConnection = nil;
+    [_responseData release];
+    _responseData = nil;
 }
 
 
@@ -171,7 +176,8 @@ NSString * const twitterStatusKey = @"status";
     
     NSRange successRange = NSMakeRange(200, 5);
     if (NSLocationInRange(statusCode, successRange)) {
-        [self sendSuccessToDelegate];
+        [self.responseData setLength:0];
+        return;
     }
     else if (statusCode == 401) {
         // Failed authentication
@@ -182,6 +188,22 @@ NSString * const twitterStatusKey = @"status";
     }
     [_postConnection release];
     _postConnection = nil;
+    [_responseData release];
+    _responseData = nil;
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    [self.responseData appendData:data];
+}
+
+- (void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    [self sendSuccessToDelegate];
+    [_postConnection release];
+    _postConnection = nil;
+    [_responseData release];
+    _responseData = nil;
 }
 
 
