@@ -21,6 +21,8 @@
 
 #import "DEEmbossedLabel.h"
 
+#define GLOWING_COLOR [UIColor colorWithRed:50.0/255.0 green:108.0/255.0 blue:228.0/255.0 alpha:0.8]
+
 
 @interface DEEmbossedLabel ()
 
@@ -43,6 +45,7 @@ void drawWithInnerShadow(CGRect rect,
 @implementation DEEmbossedLabel
 
 @synthesize attString = _attString;
+@synthesize glowing = _glowing;
 
 
 #pragma mark - Setup & Teardown
@@ -90,14 +93,24 @@ void drawWithInnerShadow(CGRect rect,
                         },
                         ^ {
                             CGContextRef blockContext = UIGraphicsGetCurrentContext();
-                            CGContextSetFillColorWithColor(blockContext, self.textColor.CGColor);
-                            CGContextSetShadowWithColor(context, CGSizeMake(0.0f, 1.0f), 1.0f, [UIColor colorWithWhite:1.0f alpha:0.5f].CGColor);
+                            if (!self.glowing) {
+                                CGContextSetFillColorWithColor(blockContext, self.textColor.CGColor);
+                                CGContextSetShadowWithColor(context, CGSizeMake(0.0f, 1.0f), 1.0f, [UIColor colorWithWhite:1.0f alpha:0.5f].CGColor);
+                            } else {
+                                CGContextSetFillColorWithColor(blockContext, GLOWING_COLOR.CGColor);
+                                CGContextSetShadowWithColor(context, CGSizeMake(0.0, 0.0), 3.0, GLOWING_COLOR.CGColor);
+                            }
                             [self drawTextInContext:blockContext];
                         });    
 }
 
 
 #pragma mark - Public
+
+- (void)setGlowing:(BOOL)glowing {
+    _glowing = glowing;
+    [self setNeedsDisplay];
+}
 
 - (void)drawTextInContext:(CGContextRef)context
 {

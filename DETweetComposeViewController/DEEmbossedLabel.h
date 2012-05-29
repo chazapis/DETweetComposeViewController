@@ -22,4 +22,6 @@
 
 @interface DEEmbossedLabel : UILabel
 
+@property (nonatomic, assign) BOOL glowing;
+
 @end
