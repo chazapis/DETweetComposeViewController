@@ -83,6 +83,7 @@ static BOOL waitingForAccess = NO;
     // Public
 @synthesize completionHandler = _completionHandler;
 @synthesize hideFromField = _hideFromField;
+@synthesize backgroundImage = _backgroundImage;
 
     // Private
 @synthesize text = _text;
@@ -243,6 +244,7 @@ static NSString * const DETweetLastAccountIdentifier = @"DETweetLastAccountIdent
     
         // Public
     [_completionHandler release], _completionHandler = nil;
+    [_backgroundImage release], _backgroundImage = nil;
     
         // Private
     [_text release], _text = nil;
@@ -321,8 +323,9 @@ static NSString * const DETweetLastAccountIdentifier = @"DETweetLastAccountIdent
         // This only works if our orientation is the same as the presenting view.
         // If they don't match, just display the gray background.
     if (self.interfaceOrientation == self.fromViewController.interfaceOrientation) {
-        UIImage *backgroundImage = [self captureView:[UIApplication sharedApplication].keyWindow];
-        self.backgroundImageView = [[[UIImageView alloc] initWithImage:backgroundImage] autorelease];
+        if (!self.backgroundImage)
+            self.backgroundImage = [self captureView:[UIApplication sharedApplication].keyWindow];
+        self.backgroundImageView = [[[UIImageView alloc] initWithImage:self.backgroundImage] autorelease];
     }
     else {
         self.backgroundImageView = [[[UIImageView alloc] initWithFrame:self.fromViewController.view.bounds] autorelease];

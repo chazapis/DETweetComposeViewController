@@ -104,5 +104,9 @@ typedef void (^DETweetComposeViewControllerCompletionHandler)(DETweetComposeView
     // Set to NO by default.
 @property (assign, nonatomic) BOOL hideFromField;
 
+    // Define an image to use as the background.
+    // If not set, the background will be created from a screenshot.
+@property (retain, nonatomic) UIImage *backgroundImage;
+
 
 @end
